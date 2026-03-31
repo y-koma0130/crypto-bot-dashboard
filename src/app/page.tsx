@@ -1,9 +1,10 @@
 export const dynamic = "force-dynamic";
 
 import { getBotStatuses, getOpenPositions, getTodayPnl } from "@/lib/queries";
-import { formatJST, formatPnl, formatPrice, formatAmount, pnlColor, sideColor, getBotLabel, getBotDescription } from "@/lib/constants";
+import { formatJST, formatPnl, formatPrice, formatAmount, pnlColor, sideColor, getBotLabel, BOT_NAMES } from "@/lib/constants";
 import type { CurrentPosition } from "@/lib/schema";
 import { CumulativePnlChart } from "@/components/cumulative-pnl-chart";
+import { BotName } from "@/components/bot-name";
 
 function StatusBadge({ active, halted }: { active: boolean; halted: boolean }) {
   if (halted) {
@@ -37,7 +38,10 @@ export default async function Home() {
     getTodayPnl(),
   ]);
 
-  const haltedBots = botStatuses.filter((b) => b.isHalted);
+  const sortedBotStatuses = BOT_NAMES.map(
+    (name) => botStatuses.find((b) => b.botName === name)!
+  ).filter(Boolean);
+  const haltedBots = sortedBotStatuses.filter((b) => b.isHalted);
   const totalPnl = todayPnl.reduce((sum, b) => sum + b.totalPnl, 0);
   const totalTrades = todayPnl.reduce((sum, b) => sum + b.trades, 0);
 
@@ -80,7 +84,7 @@ export default async function Home() {
           ボット稼働状態
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {botStatuses.map((bot) => {
+          {sortedBotStatuses.map((bot) => {
             const position = bot.currentPosition as CurrentPosition | null;
             return (
               <div
@@ -88,9 +92,8 @@ export default async function Home() {
                 className="bg-card-bg border border-card-border rounded-lg p-4"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold" title={getBotDescription(bot.botName)}>
-                    {getBotLabel(bot.botName)}
-                    <span className="ml-1 text-muted cursor-help" title={getBotDescription(bot.botName)}>?</span>
+                  <h3 className="text-sm font-semibold">
+                    <BotName name={bot.botName} showTooltip />
                   </h3>
                   <StatusBadge
                     active={bot.isActive ?? false}
@@ -139,8 +142,9 @@ export default async function Home() {
               key={bot.botName}
               className="bg-card-bg border border-card-border rounded-lg p-4"
             >
-              <p className="text-xs text-muted mb-1" title={getBotDescription(bot.botName)}>
-                {getBotLabel(bot.botName)}（USDT）
+              <p className="text-xs text-muted mb-1">
+                <BotName name={bot.botName} />
+                <span className="text-muted">（USDT）</span>
               </p>
               <p className={`text-xl font-bold ${pnlColor(bot.totalPnl)}`}>
                 {formatPnl(bot.totalPnl)}
@@ -186,7 +190,7 @@ export default async function Home() {
                     key={trade.id}
                     className="border-b border-card-border/50 last:border-0"
                   >
-                    <td className="px-4 py-3" title={getBotDescription(trade.botName)}>{getBotLabel(trade.botName)}</td>
+                    <td className="px-4 py-3"><BotName name={trade.botName} /></td>
                     <td className="px-4 py-3 font-mono">{trade.symbol}</td>
                     <td className="px-4 py-3">
                       <span className={sideColor(trade.side)}>

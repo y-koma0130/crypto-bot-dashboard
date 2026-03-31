@@ -2,7 +2,8 @@ export const dynamic = "force-dynamic";
 
 import { Suspense } from "react";
 import { getClosedTrades, getWinRateByBot, getDailyPnl } from "@/lib/queries";
-import { formatPnl, formatPrice, sideColor, pnlColor, formatJST, getBotLabel, getBotDescription } from "@/lib/constants";
+import { formatPnl, formatPrice, sideColor, pnlColor, formatJST } from "@/lib/constants";
+import { BotName } from "@/components/bot-name";
 import { PnlChart } from "@/components/pnl-chart";
 import { TradeFilters } from "@/components/trade-filters";
 
@@ -39,7 +40,7 @@ export default async function TradesPage({
               key={wr.botName}
               className="bg-card-bg border border-card-border rounded-lg p-4"
             >
-              <p className="text-sm text-muted mb-1" title={getBotDescription(wr.botName)}>{getBotLabel(wr.botName)}</p>
+              <p className="text-sm text-muted mb-1"><BotName name={wr.botName} /></p>
               <p className="text-2xl font-bold">
                 {wr.winRate != null ? `${wr.winRate}%` : "—"}
               </p>
@@ -85,7 +86,7 @@ export default async function TradesPage({
                     key={trade.id}
                     className="border-b border-card-border last:border-b-0 hover:bg-card-border/30 transition-colors"
                   >
-                    <td className="px-4 py-3" title={getBotDescription(trade.botName)}>{getBotLabel(trade.botName)}</td>
+                    <td className="px-4 py-3"><BotName name={trade.botName} /></td>
                     <td className="px-4 py-3">{trade.symbol}</td>
                     <td className="px-4 py-3">
                       <span className={sideColor(trade.side)}>

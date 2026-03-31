@@ -4,21 +4,27 @@ export type BotName = (typeof BOT_NAMES)[number];
 export const SYMBOLS = ["BTC/USDT", "ETH/USDT", "XRP/USDT", "SOL/USDT"] as const;
 export type Symbol = (typeof SYMBOLS)[number];
 
-export const BOT_META: Record<string, { label: string; color: string; description: string }> = {
+export const BOT_META: Record<string, { label: string; color: string; strategy: string; pairs: string; interval: string }> = {
   momentum: {
     label: "モメンタム",
     color: "#3b82f6",
-    description: "EMA(20/50)クロスオーバー + 出来高確認｜BTC・ETH｜1時間足｜資金40%",
+    strategy: "EMA(20/50)クロス + MACD / 出来高 + ATR + 4h MTF + GPTレジーム",
+    pairs: "BTC/USDT, ETH/USDT",
+    interval: "毎時",
   },
   range: {
     label: "レンジ",
     color: "#a855f7",
-    description: "RSI + ボリンジャーバンド逆張り｜XRP・SOL｜15分足｜資金35%",
+    strategy: "RSI(30/70)反転 + BB外側 / BB幅 + ADX(≤25) + GPTニュース",
+    pairs: "XRP/USDT, SOL/USDT",
+    interval: "15分毎",
   },
   sentiment: {
     label: "センチメント",
     color: "#eab308",
-    description: "RSSニュース → GPT分析｜全4ペア監視｜HALT判定｜資金25%",
+    strategy: "RSSニュース → GPTバッチ分析 + EMA(20)確認（司令塔）",
+    pairs: "全4ペア",
+    interval: "30分毎",
   },
 };
 
@@ -35,7 +41,9 @@ export function getBotLabel(botName: string): string {
 }
 
 export function getBotDescription(botName: string): string {
-  return BOT_META[botName]?.description ?? "";
+  const meta = BOT_META[botName];
+  if (!meta) return "";
+  return `${meta.strategy}｜${meta.pairs}｜${meta.interval}`;
 }
 
 export function formatPnl(value: number): string {

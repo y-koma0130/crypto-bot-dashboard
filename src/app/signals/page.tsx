@@ -1,7 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { getSignals } from "@/lib/queries";
-import { formatJST, getBotLabel, getBotDescription } from "@/lib/constants";
+import { formatJST } from "@/lib/constants";
+import { BotName } from "@/components/bot-name";
 import { SignalFilters } from "@/components/signal-filters";
 import { Suspense } from "react";
 
@@ -75,7 +76,7 @@ export default async function SignalsPage({
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold" title={getBotDescription(sig.botName)}>{getBotLabel(sig.botName)}</span>
+                    <span className="text-sm font-semibold"><BotName name={sig.botName} /></span>
                     <span className="text-sm text-muted">{sig.symbol}</span>
                   </div>
                   <div className="flex items-center gap-3">
