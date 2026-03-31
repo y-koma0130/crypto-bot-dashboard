@@ -8,21 +8,21 @@ export const BOT_META: Record<string, { label: string; color: string; strategy: 
   momentum: {
     label: "モメンタム",
     color: "#3b82f6",
-    strategy: "EMA(20/50)クロス + MACD / 出来高 + ATR + 4h MTF + GPTレジーム",
+    strategy: "L: EMAクロスオーバー + MACD / S: EMAクロスアンダー + MACD<0",
     pairs: "BTC/USDT, ETH/USDT",
     interval: "毎時",
   },
   range: {
     label: "レンジ",
     color: "#a855f7",
-    strategy: "RSI(30/70)反転 + BB外側 / BB幅 + ADX(≤25) + GPTニュース",
+    strategy: "L: RSI<30 + BB下限 / S: RSI>70 + BB上限",
     pairs: "XRP/USDT, SOL/USDT",
     interval: "15分毎",
   },
   sentiment: {
     label: "センチメント",
     color: "#eab308",
-    strategy: "RSSニュース → GPTバッチ分析 + EMA(20)確認（司令塔）",
+    strategy: "L: BULLISH + EMA(20)上 / S: BEARISH + EMA(20)下（司令塔）",
     pairs: "全4ペア",
     interval: "30分毎",
   },
@@ -73,4 +73,8 @@ export function pnlColor(value: number): string {
 
 export function sideColor(side: string): string {
   return side === "buy" ? "text-accent-green" : "text-accent-red";
+}
+
+export function formatSide(side: string): string {
+  return side === "buy" ? "ロング" : "ショート";
 }

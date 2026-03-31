@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { getBotStatuses, getOpenPositions, getTodayPnl } from "@/lib/queries";
-import { formatJST, formatPnl, formatPrice, formatAmount, pnlColor, sideColor, getBotLabel, BOT_NAMES } from "@/lib/constants";
+import { formatJST, formatPnl, formatPrice, formatAmount, formatSide, pnlColor, sideColor, getBotLabel, BOT_NAMES } from "@/lib/constants";
 import type { CurrentPosition } from "@/lib/schema";
 import { CumulativePnlChart } from "@/components/cumulative-pnl-chart";
 import { BotName } from "@/components/bot-name";
@@ -111,7 +111,7 @@ export default async function Home() {
                     <div className="flex justify-between">
                       <span>ポジション</span>
                       <span className={sideColor(position.side)}>
-                        {position.pair} {position.side.toUpperCase()}{" "}
+                        {position.pair} {formatSide(position.side)}{" "}
                         {formatAmount(position.amount, position.pair)}
                       </span>
                     </div>
@@ -128,7 +128,6 @@ export default async function Home() {
           本日の確定損益
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* 合計 */}
           <div className="bg-card-bg border border-card-border rounded-lg p-4">
             <p className="text-xs text-muted mb-1">合計 P&L（USDT）</p>
             <p className={`text-2xl font-bold ${pnlColor(totalPnl)}`}>
@@ -136,7 +135,6 @@ export default async function Home() {
             </p>
             <p className="text-xs text-muted mt-1">{totalTrades} 件</p>
           </div>
-          {/* ボット別 */}
           {todayPnl.map((bot) => (
             <div
               key={bot.botName}
@@ -174,7 +172,7 @@ export default async function Home() {
                 <tr className="border-b border-card-border text-left text-xs text-muted">
                   <th className="px-4 py-3 font-medium">ボット</th>
                   <th className="px-4 py-3 font-medium">通貨ペア</th>
-                  <th className="px-4 py-3 font-medium">売買</th>
+                  <th className="px-4 py-3 font-medium">方向</th>
                   <th className="px-4 py-3 font-medium text-right">数量（枚）</th>
                   <th className="px-4 py-3 font-medium text-right">
                     エントリー価格（USDT）
@@ -194,7 +192,7 @@ export default async function Home() {
                     <td className="px-4 py-3 font-mono">{trade.symbol}</td>
                     <td className="px-4 py-3">
                       <span className={sideColor(trade.side)}>
-                        {trade.side.toUpperCase()}
+                        {formatSide(trade.side)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right font-mono">

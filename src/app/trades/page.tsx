@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { Suspense } from "react";
 import { getClosedTrades, getWinRateByBot, getDailyPnl } from "@/lib/queries";
-import { formatPnl, formatPrice, sideColor, pnlColor, formatJST } from "@/lib/constants";
+import { formatPnl, formatPrice, formatSide, sideColor, pnlColor, formatJST } from "@/lib/constants";
 import { BotName } from "@/components/bot-name";
 import { PnlChart } from "@/components/pnl-chart";
 import { TradeFilters } from "@/components/trade-filters";
@@ -67,7 +67,7 @@ export default async function TradesPage({
               <tr className="border-b border-card-border text-left text-muted">
                 <th className="px-4 py-3 font-medium">ボット</th>
                 <th className="px-4 py-3 font-medium">ペア</th>
-                <th className="px-4 py-3 font-medium">サイド</th>
+                <th className="px-4 py-3 font-medium">方向</th>
                 <th className="px-4 py-3 font-medium text-right">
                   エントリー（USDT）
                 </th>
@@ -90,7 +90,7 @@ export default async function TradesPage({
                     <td className="px-4 py-3">{trade.symbol}</td>
                     <td className="px-4 py-3">
                       <span className={sideColor(trade.side)}>
-                        {trade.side.toUpperCase()}
+                        {formatSide(trade.side)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right font-mono">
