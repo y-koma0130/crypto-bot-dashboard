@@ -83,7 +83,7 @@ export default async function Home() {
         <h2 className="mb-3 text-lg font-semibold text-foreground/80">
           ボット稼働状態
         </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {sortedBotStatuses.map((bot) => {
             const position = bot.currentPosition as CurrentPosition | null;
             return (

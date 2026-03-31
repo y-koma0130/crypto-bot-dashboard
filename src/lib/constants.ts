@@ -1,4 +1,4 @@
-export const BOT_NAMES = ["momentum", "range", "sentiment"] as const;
+export const BOT_NAMES = ["momentum", "momentum-fast", "range", "sentiment"] as const;
 export type BotName = (typeof BOT_NAMES)[number];
 
 export const SYMBOLS = ["BTC/USDT", "ETH/USDT", "XRP/USDT", "SOL/USDT"] as const;
@@ -11,6 +11,13 @@ export const BOT_META: Record<string, { label: string; color: string; strategy: 
     strategy: "L: EMAクロスオーバー + MACD / S: EMAクロスアンダー + MACD<0",
     pairs: "BTC/USDT, ETH/USDT",
     interval: "毎時",
+  },
+  "momentum-fast": {
+    label: "モメンタムFast",
+    color: "#06b6d4",
+    strategy: "L: EMA(5/13)クロスオーバー / S: EMA(5/13)クロスアンダー + MACD<0（GPT省略）",
+    pairs: "BTC/USDT, ETH/USDT",
+    interval: "15分毎",
   },
   range: {
     label: "レンジ",
