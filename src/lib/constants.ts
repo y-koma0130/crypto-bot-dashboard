@@ -16,7 +16,18 @@ export function getBotColor(botName: string): string {
 
 export function formatPnl(value: number): string {
   const sign = value >= 0 ? "+" : "";
-  return `${sign}${value.toFixed(2)}`;
+  return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+export function formatPrice(value: string | number): string {
+  const num = typeof value === "string" ? parseFloat(value) : value;
+  return `$${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+export function formatAmount(value: string | number, symbol: string): string {
+  const num = typeof value === "string" ? parseFloat(value) : value;
+  const base = symbol.split("/")[0];
+  return `${num} ${base}`;
 }
 
 export function formatJST(date: Date | null | undefined): string {

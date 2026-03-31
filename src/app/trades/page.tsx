@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { Suspense } from "react";
 import { getClosedTrades, getWinRateByBot, getDailyPnl } from "@/lib/queries";
-import { formatPnl, sideColor, pnlColor } from "@/lib/constants";
+import { formatPnl, formatPrice, sideColor, pnlColor, formatJST } from "@/lib/constants";
 import { PnlChart } from "@/components/pnl-chart";
 import { TradeFilters } from "@/components/trade-filters";
 
@@ -68,12 +68,12 @@ export default async function TradesPage({
                 <th className="px-4 py-3 font-medium">ペア</th>
                 <th className="px-4 py-3 font-medium">サイド</th>
                 <th className="px-4 py-3 font-medium text-right">
-                  エントリー価格
+                  エントリー（USDT）
                 </th>
                 <th className="px-4 py-3 font-medium text-right">
-                  エグジット価格
+                  エグジット（USDT）
                 </th>
-                <th className="px-4 py-3 font-medium text-right">PnL</th>
+                <th className="px-4 py-3 font-medium text-right">PnL（USDT）</th>
                 <th className="px-4 py-3 font-medium text-right">決済日時</th>
               </tr>
             </thead>
@@ -93,29 +93,20 @@ export default async function TradesPage({
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right font-mono">
-                      {parseFloat(trade.entryPrice).toLocaleString()}
+                      {formatPrice(trade.entryPrice)}
                     </td>
                     <td className="px-4 py-3 text-right font-mono">
-                      {trade.exitPrice
-                        ? parseFloat(trade.exitPrice).toLocaleString()
-                        : "—"}
+                      {trade.exitPrice ? formatPrice(trade.exitPrice) : "—"}
                     </td>
                     <td
                       className={`px-4 py-3 text-right font-mono font-medium ${
                         pnlNum !== null ? pnlColor(pnlNum) : "text-muted"
                       }`}
                     >
-                      {pnlNum !== null ? `$${formatPnl(pnlNum)}` : "—"}
+                      {pnlNum !== null ? formatPnl(pnlNum) : "—"}
                     </td>
                     <td className="px-4 py-3 text-right text-muted">
-                      {trade.closedAt
-                        ? new Date(trade.closedAt).toLocaleString("ja-JP", {
-                            month: "2-digit",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        : "—"}
+                      {formatJST(trade.closedAt)}
                     </td>
                   </tr>
                 );

@@ -44,19 +44,19 @@ export default async function PerformancePage() {
                   <div className="flex justify-between">
                     <span className="text-muted">トレード数</span>
                     <span className="text-foreground/70">
-                      {bot.tradeCount}
+                      {bot.tradeCount} 件
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted">総PnL</span>
+                    <span className="text-muted">総PnL（USDT）</span>
                     <span className={pnlColor(bot.totalPnl)}>
-                      ${formatPnl(bot.totalPnl)}
+                      {formatPnl(bot.totalPnl)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted">平均PnL</span>
+                    <span className="text-muted">平均PnL（USDT）</span>
                     <span className={pnlColor(bot.avgPnl)}>
-                      ${formatPnl(bot.avgPnl)}
+                      {formatPnl(bot.avgPnl)}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -112,7 +112,7 @@ export default async function PerformancePage() {
                   <th className="px-4 py-3 font-medium text-right">
                     トレード数
                   </th>
-                  <th className="px-4 py-3 font-medium text-right">総PnL</th>
+                  <th className="px-4 py-3 font-medium text-right">総PnL（USDT）</th>
                   <th className="px-4 py-3 font-medium text-right">勝率</th>
                 </tr>
               </thead>
@@ -123,11 +123,11 @@ export default async function PerformancePage() {
                     className="border-b border-card-border/50 last:border-0"
                   >
                     <td className="px-4 py-3 font-mono">{row.symbol}</td>
-                    <td className="px-4 py-3 text-right">{row.tradeCount}</td>
+                    <td className="px-4 py-3 text-right">{row.tradeCount} 件</td>
                     <td
                       className={`px-4 py-3 text-right font-mono ${pnlColor(row.totalPnl)}`}
                     >
-                      ${formatPnl(row.totalPnl)}
+                      {formatPnl(row.totalPnl)}
                     </td>
                     <td className="px-4 py-3 text-right">{row.winRate}%</td>
                   </tr>

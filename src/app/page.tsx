@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { getBotStatuses, getOpenPositions, getTodayPnl } from "@/lib/queries";
-import { formatJST, formatPnl, pnlColor, sideColor } from "@/lib/constants";
+import { formatJST, formatPnl, formatPrice, formatAmount, pnlColor, sideColor } from "@/lib/constants";
 import type { CurrentPosition } from "@/lib/schema";
 import { CumulativePnlChart } from "@/components/cumulative-pnl-chart";
 
@@ -106,7 +106,7 @@ export default async function Home() {
                       <span>ポジション</span>
                       <span className={sideColor(position.side)}>
                         {position.pair} {position.side.toUpperCase()}{" "}
-                        {position.amount}
+                        {formatAmount(position.amount, position.pair)}
                       </span>
                     </div>
                   )}
@@ -124,11 +124,11 @@ export default async function Home() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {/* 合計 */}
           <div className="bg-card-bg border border-card-border rounded-lg p-4">
-            <p className="text-xs text-muted mb-1">合計 P&L</p>
+            <p className="text-xs text-muted mb-1">合計 P&L（USDT）</p>
             <p className={`text-2xl font-bold ${pnlColor(totalPnl)}`}>
               {formatPnl(totalPnl)}
             </p>
-            <p className="text-xs text-muted mt-1">{totalTrades} trades</p>
+            <p className="text-xs text-muted mt-1">{totalTrades} 件</p>
           </div>
           {/* ボット別 */}
           {todayPnl.map((bot) => (
@@ -136,11 +136,11 @@ export default async function Home() {
               key={bot.botName}
               className="bg-card-bg border border-card-border rounded-lg p-4"
             >
-              <p className="text-xs text-muted mb-1">{bot.botName}</p>
+              <p className="text-xs text-muted mb-1">{bot.botName}（USDT）</p>
               <p className={`text-xl font-bold ${pnlColor(bot.totalPnl)}`}>
                 {formatPnl(bot.totalPnl)}
               </p>
-              <p className="text-xs text-muted mt-1">{bot.trades} trades</p>
+              <p className="text-xs text-muted mt-1">{bot.trades} 件</p>
             </div>
           ))}
         </div>
@@ -166,9 +166,9 @@ export default async function Home() {
                   <th className="px-4 py-3 font-medium">ボット</th>
                   <th className="px-4 py-3 font-medium">通貨ペア</th>
                   <th className="px-4 py-3 font-medium">売買</th>
-                  <th className="px-4 py-3 font-medium text-right">数量</th>
+                  <th className="px-4 py-3 font-medium text-right">数量（枚）</th>
                   <th className="px-4 py-3 font-medium text-right">
-                    エントリー価格
+                    エントリー価格（USDT）
                   </th>
                   <th className="px-4 py-3 font-medium text-right">
                     開始日時
@@ -189,10 +189,10 @@ export default async function Home() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right font-mono">
-                      {trade.amount}
+                      {formatAmount(trade.amount, trade.symbol)}
                     </td>
                     <td className="px-4 py-3 text-right font-mono">
-                      {trade.entryPrice}
+                      {formatPrice(trade.entryPrice)}
                     </td>
                     <td className="px-4 py-3 text-right text-muted">
                       {formatJST(trade.createdAt)}
