@@ -6,7 +6,7 @@ import {
   getDailyPnlByBot,
   getWinRateByBot,
 } from "@/lib/queries";
-import { formatPnl, pnlColor } from "@/lib/constants";
+import { formatPnl, pnlColor, getBotLabel, getBotDescription } from "@/lib/constants";
 import { BotComparisonChart } from "@/components/bot-comparison-chart";
 import { BotPnlChart } from "@/components/bot-pnl-chart";
 
@@ -39,7 +39,10 @@ export default async function PerformancePage() {
                 key={bot.botName}
                 className="bg-card-bg border border-card-border rounded-lg p-4"
               >
-                <h3 className="text-sm font-semibold mb-3">{bot.botName}</h3>
+                <h3 className="text-sm font-semibold mb-3" title={getBotDescription(bot.botName)}>
+                  {getBotLabel(bot.botName)}
+                  <span className="ml-1 text-muted cursor-help" title={getBotDescription(bot.botName)}>?</span>
+                </h3>
                 <div className="space-y-2 text-xs">
                   <div className="flex justify-between">
                     <span className="text-muted">トレード数</span>

@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
-import { BOT_NAMES } from "@/lib/constants";
+import { BOT_NAMES, getBotLabel } from "@/lib/constants";
 
 const SIGNAL_OPTIONS = [
   "BULLISH",
@@ -52,7 +52,7 @@ export function SignalFilters() {
           <option value="">全て</option>
           {BOT_NAMES.map((bot) => (
             <option key={bot} value={bot}>
-              {bot}
+              {getBotLabel(bot)}
             </option>
           ))}
         </select>

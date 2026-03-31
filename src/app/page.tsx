@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { getBotStatuses, getOpenPositions, getTodayPnl } from "@/lib/queries";
-import { formatJST, formatPnl, formatPrice, formatAmount, pnlColor, sideColor } from "@/lib/constants";
+import { formatJST, formatPnl, formatPrice, formatAmount, pnlColor, sideColor, getBotLabel, getBotDescription } from "@/lib/constants";
 import type { CurrentPosition } from "@/lib/schema";
 import { CumulativePnlChart } from "@/components/cumulative-pnl-chart";
 
@@ -68,7 +68,7 @@ export default async function Home() {
           <ul className="mt-2 space-y-1 pl-7">
             {haltedBots.map((bot) => (
               <li key={bot.botName} className="text-sm text-accent-yellow/80">
-                {bot.botName} - 最終実行: {formatJST(bot.lastRunAt)}
+                {getBotLabel(bot.botName)} - 最終実行: {formatJST(bot.lastRunAt)}
               </li>
             ))}
           </ul>
@@ -88,7 +88,10 @@ export default async function Home() {
                 className="bg-card-bg border border-card-border rounded-lg p-4"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold">{bot.botName}</h3>
+                  <h3 className="text-sm font-semibold" title={getBotDescription(bot.botName)}>
+                    {getBotLabel(bot.botName)}
+                    <span className="ml-1 text-muted cursor-help" title={getBotDescription(bot.botName)}>?</span>
+                  </h3>
                   <StatusBadge
                     active={bot.isActive ?? false}
                     halted={bot.isHalted ?? false}
@@ -136,7 +139,9 @@ export default async function Home() {
               key={bot.botName}
               className="bg-card-bg border border-card-border rounded-lg p-4"
             >
-              <p className="text-xs text-muted mb-1">{bot.botName}（USDT）</p>
+              <p className="text-xs text-muted mb-1" title={getBotDescription(bot.botName)}>
+                {getBotLabel(bot.botName)}（USDT）
+              </p>
               <p className={`text-xl font-bold ${pnlColor(bot.totalPnl)}`}>
                 {formatPnl(bot.totalPnl)}
               </p>
@@ -181,7 +186,7 @@ export default async function Home() {
                     key={trade.id}
                     className="border-b border-card-border/50 last:border-0"
                   >
-                    <td className="px-4 py-3">{trade.botName}</td>
+                    <td className="px-4 py-3" title={getBotDescription(trade.botName)}>{getBotLabel(trade.botName)}</td>
                     <td className="px-4 py-3 font-mono">{trade.symbol}</td>
                     <td className="px-4 py-3">
                       <span className={sideColor(trade.side)}>

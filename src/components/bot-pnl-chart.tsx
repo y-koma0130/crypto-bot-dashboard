@@ -10,7 +10,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { getBotColor } from "@/lib/constants";
+import { getBotColor, getBotLabel } from "@/lib/constants";
 import {
   GRID_PROPS,
   AXIS_TICK,
@@ -92,6 +92,7 @@ export function BotPnlChart({ data }: { data: DailyBotPnl[] }) {
             key={name}
             type="monotone"
             dataKey={name}
+            name={getBotLabel(name)}
             stroke={getBotColor(name)}
             strokeWidth={2}
             dot={false}

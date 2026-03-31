@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
-import { BOT_NAMES, SYMBOLS } from "@/lib/constants";
+import { BOT_NAMES, SYMBOLS, getBotLabel } from "@/lib/constants";
 
 export function TradeFilters() {
   const router = useRouter();
@@ -36,7 +36,7 @@ export function TradeFilters() {
           <option value="">全て</option>
           {BOT_NAMES.map((bot) => (
             <option key={bot} value={bot}>
-              {bot}
+              {getBotLabel(bot)}
             </option>
           ))}
         </select>

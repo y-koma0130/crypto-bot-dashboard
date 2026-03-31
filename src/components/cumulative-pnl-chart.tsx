@@ -11,7 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { BOT_COLORS } from "@/lib/constants";
+import { BOT_META } from "@/lib/constants";
 import {
   GRID_PROPS,
   AXIS_TICK,
@@ -41,12 +41,12 @@ const PERIODS = [
 
 const LINE_CONFIG = [
   { key: "total", label: "合計", color: "#22c55e" },
-  ...Object.entries(BOT_COLORS).map(([key, color]) => ({
+  ...Object.entries(BOT_META).map(([key, meta]) => ({
     key,
-    label: key,
-    color,
+    label: meta.label,
+    color: meta.color,
   })),
-] as const;
+];
 
 export function CumulativePnlChart() {
   const [period, setPeriod] = useState("1m");
