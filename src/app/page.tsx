@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { getBotStatuses, getOpenPositions, getTodayPnl } from "@/lib/queries";
 import { formatJST, formatPnl, formatPrice, formatAmount, formatSide, pnlColor, sideColor, getBotLabel, BOT_NAMES } from "@/lib/constants";
+import { getCurrentPrices, calcUnrealizedPnl } from "@/lib/prices";
 import type { CurrentPosition } from "@/lib/schema";
 import { CumulativePnlChart } from "@/components/cumulative-pnl-chart";
 import { BotName } from "@/components/bot-name";
@@ -37,6 +38,10 @@ export default async function Home() {
     getOpenPositions(),
     getTodayPnl(),
   ]);
+
+  const prices = openPositions.length > 0
+    ? await getCurrentPrices(openPositions.map((t) => t.symbol))
+    : {};
 
   const sortedBotStatuses = BOT_NAMES.map(
     (name) => botStatuses.find((b) => b.botName === name)!
@@ -175,7 +180,13 @@ export default async function Home() {
                   <th className="px-4 py-3 font-medium">方向</th>
                   <th className="px-4 py-3 font-medium text-right">数量（枚）</th>
                   <th className="px-4 py-3 font-medium text-right">
-                    エントリー価格（USDT）
+                    エントリー（USDT）
+                  </th>
+                  <th className="px-4 py-3 font-medium text-right">
+                    現在価格（USDT）
+                  </th>
+                  <th className="px-4 py-3 font-medium text-right">
+                    未実現損益（USDT）
                   </th>
                   <th className="px-4 py-3 font-medium text-right">
                     開始日時
@@ -183,29 +194,43 @@ export default async function Home() {
                 </tr>
               </thead>
               <tbody>
-                {openPositions.map((trade) => (
-                  <tr
-                    key={trade.id}
-                    className="border-b border-card-border/50 last:border-0"
-                  >
-                    <td className="px-4 py-3"><BotName name={trade.botName} /></td>
-                    <td className="px-4 py-3 font-mono">{trade.symbol}</td>
-                    <td className="px-4 py-3">
-                      <span className={sideColor(trade.side)}>
-                        {formatSide(trade.side)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right font-mono">
-                      {formatAmount(trade.amount, trade.symbol)}
-                    </td>
-                    <td className="px-4 py-3 text-right font-mono">
-                      {formatPrice(trade.entryPrice)}
-                    </td>
-                    <td className="px-4 py-3 text-right text-muted">
-                      {formatJST(trade.createdAt)}
-                    </td>
-                  </tr>
-                ))}
+                {openPositions.map((trade) => {
+                  const currentPrice = prices[trade.symbol];
+                  const entry = parseFloat(trade.entryPrice);
+                  const amount = parseFloat(trade.amount);
+                  const unrealized = currentPrice != null
+                    ? calcUnrealizedPnl(trade.side, entry, currentPrice, amount)
+                    : null;
+                  return (
+                    <tr
+                      key={trade.id}
+                      className="border-b border-card-border/50 last:border-0"
+                    >
+                      <td className="px-4 py-3"><BotName name={trade.botName} /></td>
+                      <td className="px-4 py-3 font-mono">{trade.symbol}</td>
+                      <td className="px-4 py-3">
+                        <span className={sideColor(trade.side)}>
+                          {formatSide(trade.side)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right font-mono">
+                        {formatAmount(trade.amount, trade.symbol)}
+                      </td>
+                      <td className="px-4 py-3 text-right font-mono">
+                        {formatPrice(trade.entryPrice)}
+                      </td>
+                      <td className="px-4 py-3 text-right font-mono">
+                        {currentPrice != null ? formatPrice(currentPrice) : "-"}
+                      </td>
+                      <td className={`px-4 py-3 text-right font-mono font-medium ${unrealized != null ? pnlColor(unrealized) : "text-muted"}`}>
+                        {unrealized != null ? formatPnl(unrealized) : "-"}
+                      </td>
+                      <td className="px-4 py-3 text-right text-muted">
+                        {formatJST(trade.createdAt)}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
