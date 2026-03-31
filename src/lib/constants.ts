@@ -60,13 +60,15 @@ export function formatPnl(value: number): string {
 
 export function formatPrice(value: string | number): string {
   const num = typeof value === "string" ? parseFloat(value) : value;
-  return `$${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const decimals = num >= 100 ? 2 : num >= 1 ? 4 : 6;
+  return `$${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: decimals })}`;
 }
 
 export function formatAmount(value: string | number, symbol: string): string {
   const num = typeof value === "string" ? parseFloat(value) : value;
   const base = symbol.split("/")[0];
-  return `${num} ${base}`;
+  const decimals = num >= 1 ? 4 : 6;
+  return `${num.toLocaleString("en-US", { maximumFractionDigits: decimals })} ${base}`;
 }
 
 export function formatJST(date: Date | null | undefined): string {
