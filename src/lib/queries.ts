@@ -103,17 +103,29 @@ export async function getSignals(opts?: {
   botName?: string;
   signal?: string;
   limit?: number;
-}): Promise<Signal[]> {
+  offset?: number;
+}): Promise<{ data: Signal[]; total: number }> {
   const conditions = [];
   if (opts?.botName) conditions.push(eq(signals.botName, opts.botName));
   if (opts?.signal) conditions.push(eq(signals.signal, opts.signal));
 
-  return db
-    .select()
-    .from(signals)
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
-    .orderBy(desc(signals.createdAt))
-    .limit(opts?.limit ?? 50);
+  const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const [data, countResult] = await Promise.all([
+    db
+      .select()
+      .from(signals)
+      .where(where)
+      .orderBy(desc(signals.createdAt))
+      .limit(opts?.limit ?? 30)
+      .offset(opts?.offset ?? 0),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(signals)
+      .where(where),
+  ]);
+
+  return { data, total: countResult[0]?.count ?? 0 };
 }
 
 // Cumulative PnL by bot for chart (with period filter)

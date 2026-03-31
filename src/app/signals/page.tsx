@@ -4,7 +4,10 @@ import { getSignals } from "@/lib/queries";
 import { formatJST } from "@/lib/constants";
 import { BotName } from "@/components/bot-name";
 import { SignalFilters } from "@/components/signal-filters";
+import { Pagination } from "@/components/pagination";
 import { Suspense } from "react";
+
+const PAGE_SIZE = 30;
 
 type SignalBadgeColor = "green" | "red" | "yellow" | "blue" | "muted";
 
@@ -37,17 +40,20 @@ const badgeStyles: Record<SignalBadgeColor, string> = {
   muted: "bg-muted/20 text-muted",
 };
 
-
 export default async function SignalsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ botName?: string; signal?: string }>;
+  searchParams: Promise<{ botName?: string; signal?: string; page?: string }>;
 }) {
   const params = await searchParams;
-  const signals = await getSignals({
+  const page = Math.max(1, parseInt(params.page ?? "1", 10));
+  const offset = (page - 1) * PAGE_SIZE;
+
+  const { data: signals, total } = await getSignals({
     botName: params.botName || undefined,
     signal: params.signal || undefined,
-    limit: 50,
+    limit: PAGE_SIZE,
+    offset,
   });
 
   return (
@@ -66,45 +72,51 @@ export default async function SignalsPage({
           シグナルが見つかりませんでした
         </div>
       ) : (
-        <div className="grid gap-4">
-          {signals.map((sig) => {
-            const color = getSignalColor(sig.signal);
-            return (
-              <div
-                key={sig.id}
-                className="bg-card-bg border border-card-border rounded-lg p-4"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold"><BotName name={sig.botName} /></span>
-                    <span className="text-sm text-muted">{sig.symbol}</span>
+        <>
+          <div className="grid gap-4">
+            {signals.map((sig) => {
+              const color = getSignalColor(sig.signal);
+              return (
+                <div
+                  key={sig.id}
+                  className="bg-card-bg border border-card-border rounded-lg p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-semibold"><BotName name={sig.botName} /></span>
+                      <span className="text-sm text-muted">{sig.symbol}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeStyles[color]}`}
+                      >
+                        {sig.signal}
+                      </span>
+                      <span className="text-xs text-muted">
+                        {formatJST(sig.createdAt)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeStyles[color]}`}
-                    >
-                      {sig.signal}
-                    </span>
-                    <span className="text-xs text-muted">
-                      {formatJST(sig.createdAt)}
-                    </span>
-                  </div>
-                </div>
 
-                {sig.reasoning && (
-                  <details className="mt-3">
-                    <summary className="cursor-pointer text-xs text-muted hover:text-foreground transition-colors">
-                      判断理由を表示
-                    </summary>
-                    <p className="mt-2 text-sm text-foreground/80 whitespace-pre-wrap leading-relaxed bg-background/50 rounded-md p-3">
-                      {sig.reasoning}
-                    </p>
-                  </details>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                  {sig.reasoning && (
+                    <details className="mt-3">
+                      <summary className="cursor-pointer text-xs text-muted hover:text-foreground transition-colors">
+                        判断理由を表示
+                      </summary>
+                      <p className="mt-2 text-sm text-foreground/80 whitespace-pre-wrap leading-relaxed bg-background/50 rounded-md p-3">
+                        {sig.reasoning}
+                      </p>
+                    </details>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <Suspense fallback={null}>
+            <Pagination total={total} pageSize={PAGE_SIZE} basePath="/signals" />
+          </Suspense>
+        </>
       )}
     </div>
   );
