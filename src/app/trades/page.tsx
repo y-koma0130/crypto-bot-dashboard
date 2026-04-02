@@ -39,7 +39,7 @@ export default async function TradesPage({
 
       <section>
         <h2 className="text-sm font-medium text-muted mb-3">ボット別勝率</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {winRates.map((wr) => (
             <div
               key={wr.botName}
@@ -79,13 +79,16 @@ export default async function TradesPage({
                 <th className="px-4 py-3 font-medium text-right">
                   エグジット（USDT）
                 </th>
-                <th className="px-4 py-3 font-medium text-right">PnL（USDT）</th>
+                <th className="px-4 py-3 font-medium text-right">部分利確（USDT）</th>
+                <th className="px-4 py-3 font-medium text-right">総PnL（USDT）</th>
                 <th className="px-4 py-3 font-medium text-right">決済日時</th>
               </tr>
             </thead>
             <tbody>
               {trades.map((trade) => {
                 const pnlNum = trade.pnl ? parseFloat(trade.pnl) : null;
+                const partialPnlNum = trade.partialPnl ? parseFloat(trade.partialPnl) : null;
+                const totalPnl = (pnlNum ?? 0) + (partialPnlNum ?? 0);
                 return (
                   <tr
                     key={trade.id}
@@ -106,10 +109,17 @@ export default async function TradesPage({
                     </td>
                     <td
                       className={`px-4 py-3 text-right font-mono font-medium ${
-                        pnlNum !== null ? pnlColor(pnlNum) : "text-muted"
+                        partialPnlNum !== null ? pnlColor(partialPnlNum) : "text-muted"
                       }`}
                     >
-                      {pnlNum !== null ? formatPnl(pnlNum) : "—"}
+                      {partialPnlNum !== null ? formatPnl(partialPnlNum) : "—"}
+                    </td>
+                    <td
+                      className={`px-4 py-3 text-right font-mono font-medium ${
+                        pnlNum !== null || partialPnlNum !== null ? pnlColor(totalPnl) : "text-muted"
+                      }`}
+                    >
+                      {pnlNum !== null || partialPnlNum !== null ? formatPnl(totalPnl) : "—"}
                     </td>
                     <td className="px-4 py-3 text-right text-muted">
                       {formatJST(trade.closedAt)}
@@ -120,7 +130,7 @@ export default async function TradesPage({
               {trades.length === 0 && (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="px-4 py-8 text-center text-muted"
                   >
                     トレードデータがありません

@@ -16,10 +16,12 @@ function getSignalColor(signal: string): SignalBadgeColor {
     case "BULLISH":
     case "BUY_FILTER:SAFE":
     case "TRENDING":
+    case "PROB_SPIKE_UP":
       return "green";
     case "BEARISH":
     case "SELL_FILTER:BLOCKED":
     case "BUY_FILTER:BLOCKED":
+    case "PROB_SPIKE_DOWN":
       return "red";
     case "HALT":
       return "yellow";
@@ -60,7 +62,7 @@ export default async function SignalsPage({
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">シグナルログ</h1>
-        <p className="text-sm text-muted mt-1">GPT分析によるシグナル履歴</p>
+        <p className="text-sm text-muted mt-1">Polymarket + テクニカル分析によるシグナル履歴</p>
       </div>
 
       <Suspense fallback={null}>

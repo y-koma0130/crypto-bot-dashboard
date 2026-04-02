@@ -3,12 +3,13 @@ import { trades, signals, botStatus } from "./schema";
 import { eq, desc, sql, and, gte } from "drizzle-orm";
 import type { Trade, Signal, BotStatus } from "./schema";
 
-// Bot status
+// total_pnl = pnl + partial_pnl (部分利確込み)
+const totalPnlExpr = sql`(coalesce(${trades.pnl}::numeric, 0) + coalesce(${trades.partialPnl}::numeric, 0))`;
+
 export async function getBotStatuses(): Promise<BotStatus[]> {
   return db.select().from(botStatus);
 }
 
-// Open positions
 export async function getOpenPositions(): Promise<Trade[]> {
   return db
     .select()
@@ -17,29 +18,23 @@ export async function getOpenPositions(): Promise<Trade[]> {
     .orderBy(desc(trades.createdAt));
 }
 
-// Today's closed PnL
 export async function getTodayPnl(): Promise<
   { botName: string; trades: number; totalPnl: number }[]
 > {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const result = await db
+  return db
     .select({
       botName: trades.botName,
       trades: sql<number>`count(*)::int`,
-      totalPnl: sql<number>`coalesce(sum(${trades.pnl}::numeric), 0)::float`,
+      totalPnl: sql<number>`coalesce(sum(${totalPnlExpr}), 0)::float`,
     })
     .from(trades)
-    .where(
-      and(eq(trades.status, "closed"), gte(trades.closedAt, today))
-    )
+    .where(and(eq(trades.status, "closed"), gte(trades.closedAt, today)))
     .groupBy(trades.botName);
-
-  return result;
 }
 
-// Closed trades with optional filters
 export async function getClosedTrades(opts?: {
   botName?: string;
   symbol?: string;
@@ -69,32 +64,28 @@ export async function getClosedTrades(opts?: {
   return { data, total: countResult[0]?.count ?? 0 };
 }
 
-// Win rate by bot
 export async function getWinRateByBot(): Promise<
   { botName: string; wins: number; losses: number; winRate: number }[]
 > {
-  const result = await db
+  return db
     .select({
       botName: trades.botName,
-      wins: sql<number>`count(*) filter (where ${trades.pnl}::numeric > 0)::int`,
-      losses: sql<number>`count(*) filter (where ${trades.pnl}::numeric <= 0)::int`,
-      winRate: sql<number>`round(count(*) filter (where ${trades.pnl}::numeric > 0)::numeric / nullif(count(*), 0) * 100, 1)::float`,
+      wins: sql<number>`count(*) filter (where ${totalPnlExpr} > 0)::int`,
+      losses: sql<number>`count(*) filter (where ${totalPnlExpr} <= 0)::int`,
+      winRate: sql<number>`round(count(*) filter (where ${totalPnlExpr} > 0)::numeric / nullif(count(*), 0) * 100, 1)::float`,
     })
     .from(trades)
     .where(eq(trades.status, "closed"))
     .groupBy(trades.botName);
-
-  return result;
 }
 
-// Daily PnL for chart
 export async function getDailyPnl(): Promise<
   { date: string; pnl: number; cumulativePnl: number }[]
 > {
   const result = await db
     .select({
       date: sql<string>`to_char(${trades.closedAt}::date, 'YYYY-MM-DD')`,
-      pnl: sql<number>`coalesce(sum(${trades.pnl}::numeric), 0)::float`,
+      pnl: sql<number>`coalesce(sum(${totalPnlExpr}), 0)::float`,
     })
     .from(trades)
     .where(eq(trades.status, "closed"))
@@ -108,7 +99,6 @@ export async function getDailyPnl(): Promise<
   });
 }
 
-// Signals with optional filters
 export async function getSignals(opts?: {
   botName?: string;
   signal?: string;
@@ -138,76 +128,62 @@ export async function getSignals(opts?: {
   return { data, total: countResult[0]?.count ?? 0 };
 }
 
-// Cumulative PnL by bot for chart (with period filter)
 export async function getCumulativePnlByBot(since: Date): Promise<
   { date: string; botName: string; pnl: number }[]
 > {
-  const result = await db
+  return db
     .select({
       date: sql<string>`to_char(${trades.closedAt}::date, 'YYYY-MM-DD')`,
       botName: trades.botName,
-      pnl: sql<number>`coalesce(sum(${trades.pnl}::numeric), 0)::float`,
+      pnl: sql<number>`coalesce(sum(${totalPnlExpr}), 0)::float`,
     })
     .from(trades)
-    .where(
-      and(eq(trades.status, "closed"), gte(trades.closedAt, since))
-    )
+    .where(and(eq(trades.status, "closed"), gte(trades.closedAt, since)))
     .groupBy(sql`${trades.closedAt}::date`, trades.botName)
     .orderBy(sql`${trades.closedAt}::date`);
-
-  return result;
 }
 
-// Performance: PnL by bot
 export async function getPnlByBot(): Promise<
   { botName: string; totalPnl: number; tradeCount: number; avgPnl: number }[]
 > {
-  const result = await db
+  return db
     .select({
       botName: trades.botName,
-      totalPnl: sql<number>`coalesce(sum(${trades.pnl}::numeric), 0)::float`,
+      totalPnl: sql<number>`coalesce(sum(${totalPnlExpr}), 0)::float`,
       tradeCount: sql<number>`count(*)::int`,
-      avgPnl: sql<number>`coalesce(avg(${trades.pnl}::numeric), 0)::float`,
+      avgPnl: sql<number>`coalesce(avg(${totalPnlExpr}), 0)::float`,
     })
     .from(trades)
     .where(eq(trades.status, "closed"))
     .groupBy(trades.botName);
-
-  return result;
 }
 
-// Performance: PnL by symbol
 export async function getPnlBySymbol(): Promise<
   { symbol: string; totalPnl: number; tradeCount: number; winRate: number }[]
 > {
-  const result = await db
+  return db
     .select({
       symbol: trades.symbol,
-      totalPnl: sql<number>`coalesce(sum(${trades.pnl}::numeric), 0)::float`,
+      totalPnl: sql<number>`coalesce(sum(${totalPnlExpr}), 0)::float`,
       tradeCount: sql<number>`count(*)::int`,
-      winRate: sql<number>`round(count(*) filter (where ${trades.pnl}::numeric > 0)::numeric / nullif(count(*), 0) * 100, 1)::float`,
+      winRate: sql<number>`round(count(*) filter (where ${totalPnlExpr} > 0)::numeric / nullif(count(*), 0) * 100, 1)::float`,
     })
     .from(trades)
     .where(eq(trades.status, "closed"))
     .groupBy(trades.symbol);
-
-  return result;
 }
 
-// Performance: Daily PnL by bot
 export async function getDailyPnlByBot(): Promise<
   { date: string; botName: string; pnl: number }[]
 > {
-  const result = await db
+  return db
     .select({
       date: sql<string>`to_char(${trades.closedAt}::date, 'YYYY-MM-DD')`,
       botName: trades.botName,
-      pnl: sql<number>`coalesce(sum(${trades.pnl}::numeric), 0)::float`,
+      pnl: sql<number>`coalesce(sum(${totalPnlExpr}), 0)::float`,
     })
     .from(trades)
     .where(eq(trades.status, "closed"))
     .groupBy(sql`${trades.closedAt}::date`, trades.botName)
     .orderBy(sql`${trades.closedAt}::date`);
-
-  return result;
 }

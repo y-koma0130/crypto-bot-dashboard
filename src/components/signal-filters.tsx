@@ -15,6 +15,8 @@ const SIGNAL_OPTIONS = [
   "BUY_FILTER:BLOCKED",
   "SELL_FILTER:SAFE",
   "SELL_FILTER:BLOCKED",
+  "PROB_SPIKE_UP",
+  "PROB_SPIKE_DOWN",
 ] as const;
 
 export function SignalFilters() {

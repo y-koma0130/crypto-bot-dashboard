@@ -183,6 +183,9 @@ export default async function Home() {
                     エントリー（USDT）
                   </th>
                   <th className="px-4 py-3 font-medium text-right">
+                    部分利確
+                  </th>
+                  <th className="px-4 py-3 font-medium text-right">
                     現在価格（USDT）
                   </th>
                   <th className="px-4 py-3 font-medium text-right">
@@ -218,6 +221,11 @@ export default async function Home() {
                       </td>
                       <td className="px-4 py-3 text-right font-mono">
                         {formatPrice(trade.entryPrice)}
+                      </td>
+                      <td className={`px-4 py-3 text-right font-mono ${trade.partialPnl != null ? pnlColor(parseFloat(trade.partialPnl)) : "text-muted"}`}>
+                        {trade.partialPnl != null
+                          ? `${formatPrice(trade.partialExitPrice!)} (${formatAmount(trade.partialAmount!, trade.symbol)})  ${formatPnl(parseFloat(trade.partialPnl))}`
+                          : "-"}
                       </td>
                       <td className="px-4 py-3 text-right font-mono">
                         {currentPrice != null ? formatPrice(currentPrice) : "-"}

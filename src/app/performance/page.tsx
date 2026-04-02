@@ -32,7 +32,7 @@ export default async function PerformancePage() {
         <h2 className="mb-3 text-lg font-semibold text-foreground/80">
           ボット別サマリー
         </h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {pnlByBot.map((bot) => {
             const wr = winRateMap.get(bot.botName);
             return (

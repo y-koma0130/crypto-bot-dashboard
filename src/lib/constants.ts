@@ -1,4 +1,4 @@
-export const BOT_NAMES = ["momentum", "momentum-fast", "range", "sentiment"] as const;
+export const BOT_NAMES = ["momentum", "momentum-fast", "range", "polymarket", "sentiment"] as const;
 export type BotName = (typeof BOT_NAMES)[number];
 
 export const SYMBOLS = ["BTC/USDT", "ETH/USDT", "XRP/USDT", "SOL/USDT"] as const;
@@ -8,28 +8,35 @@ export const BOT_META: Record<string, { label: string; color: string; strategy: 
   momentum: {
     label: "モメンタム",
     color: "#3b82f6",
-    strategy: "L: EMAクロスオーバー + MACD / S: EMAクロスアンダー + MACD<0",
+    strategy: "L: EMA(20/50)クロス + MACD / S: EMAクロスアンダー + MACD<0",
     pairs: "BTC/USDT, ETH/USDT",
     interval: "毎時",
   },
   "momentum-fast": {
     label: "モメンタムFast",
     color: "#06b6d4",
-    strategy: "L: EMA(9/21)クロスオーバー + MACD / S: EMA(9/21)クロスアンダー + MACD<0（GPT省略）",
+    strategy: "L: EMA(9/21)クロス + MACD / S: EMA(9/21)クロスアンダー + MACD<0",
     pairs: "BTC/USDT, ETH/USDT",
     interval: "15分毎",
   },
   range: {
     label: "レンジ",
     color: "#a855f7",
-    strategy: "L: RSI<30 + BB下限 / S: RSI>70 + BB上限",
+    strategy: "L: RSI<30 + BB下限 / S: RSI>70 + BB上限 + Polymarket確率",
     pairs: "XRP/USDT, SOL/USDT",
     interval: "15分毎",
+  },
+  polymarket: {
+    label: "ポリマーケット",
+    color: "#f97316",
+    strategy: "Polymarket確率の急変（10分で±15%）をトリガーにエントリー",
+    pairs: "全4ペア",
+    interval: "10分毎",
   },
   sentiment: {
     label: "センチメント",
     color: "#eab308",
-    strategy: "L: BULLISH + EMA(20)上 / S: BEARISH + EMA(20)下（司令塔）",
+    strategy: "Polymarket確率(≥65%) + RSSキーワード検出（司令塔）",
     pairs: "全4ペア",
     interval: "30分毎",
   },
