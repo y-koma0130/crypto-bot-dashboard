@@ -45,18 +45,28 @@ export async function getClosedTrades(opts?: {
   symbol?: string;
   limit?: number;
   offset?: number;
-}): Promise<Trade[]> {
+}): Promise<{ data: Trade[]; total: number }> {
   const conditions = [eq(trades.status, "closed")];
   if (opts?.botName) conditions.push(eq(trades.botName, opts.botName));
   if (opts?.symbol) conditions.push(eq(trades.symbol, opts.symbol));
 
-  return db
-    .select()
-    .from(trades)
-    .where(and(...conditions))
-    .orderBy(desc(trades.closedAt))
-    .limit(opts?.limit ?? 100)
-    .offset(opts?.offset ?? 0);
+  const where = and(...conditions);
+
+  const [data, countResult] = await Promise.all([
+    db
+      .select()
+      .from(trades)
+      .where(where)
+      .orderBy(desc(trades.closedAt))
+      .limit(opts?.limit ?? 30)
+      .offset(opts?.offset ?? 0),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(trades)
+      .where(where),
+  ]);
+
+  return { data, total: countResult[0]?.count ?? 0 };
 }
 
 // Win rate by bot

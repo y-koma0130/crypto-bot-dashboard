@@ -15,7 +15,7 @@ export const BOT_META: Record<string, { label: string; color: string; strategy: 
   "momentum-fast": {
     label: "モメンタムFast",
     color: "#06b6d4",
-    strategy: "L: EMA(5/13)クロスオーバー / S: EMA(5/13)クロスアンダー + MACD<0（GPT省略）",
+    strategy: "L: EMA(9/21)クロスオーバー + MACD / S: EMA(9/21)クロスアンダー + MACD<0（GPT省略）",
     pairs: "BTC/USDT, ETH/USDT",
     interval: "15分毎",
   },

@@ -6,8 +6,11 @@ import { formatPnl, formatPrice, formatSide, sideColor, pnlColor, formatJST } fr
 import { BotName } from "@/components/bot-name";
 import { PnlChart } from "@/components/pnl-chart";
 import { TradeFilters } from "@/components/trade-filters";
+import { Pagination } from "@/components/pagination";
 
-type SearchParams = Promise<{ botName?: string; symbol?: string }>;
+const PAGE_SIZE = 30;
+
+type SearchParams = Promise<{ botName?: string; symbol?: string; page?: string }>;
 
 export default async function TradesPage({
   searchParams,
@@ -17,9 +20,11 @@ export default async function TradesPage({
   const params = await searchParams;
   const botName = params.botName;
   const symbol = params.symbol;
+  const page = Math.max(1, parseInt(params.page ?? "1", 10));
+  const offset = (page - 1) * PAGE_SIZE;
 
-  const [trades, winRates, dailyPnl] = await Promise.all([
-    getClosedTrades({ botName, symbol }),
+  const [{ data: trades, total }, winRates, dailyPnl] = await Promise.all([
+    getClosedTrades({ botName, symbol, limit: PAGE_SIZE, offset }),
     getWinRateByBot(),
     getDailyPnl(),
   ]);
@@ -125,6 +130,13 @@ export default async function TradesPage({
             </tbody>
           </table>
         </div>
+        {total > PAGE_SIZE && (
+          <div className="px-4 py-3 border-t border-card-border">
+            <Suspense fallback={null}>
+              <Pagination total={total} pageSize={PAGE_SIZE} basePath="/trades" />
+            </Suspense>
+          </div>
+        )}
       </section>
     </div>
   );
