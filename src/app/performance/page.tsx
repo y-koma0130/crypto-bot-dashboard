@@ -6,7 +6,7 @@ import {
   getDailyPnlByBot,
   getWinRateByBot,
 } from "@/lib/queries";
-import { formatPnl, pnlColor } from "@/lib/constants";
+import { formatPnl, pnlColor, BOT_NAMES } from "@/lib/constants";
 import { BotName } from "@/components/bot-name";
 import { BotComparisonChart } from "@/components/bot-comparison-chart";
 import { BotPnlChart } from "@/components/bot-pnl-chart";
@@ -20,9 +20,8 @@ export default async function PerformancePage() {
       getWinRateByBot(),
     ]);
 
-  const winRateMap = new Map(
-    winRateByBot.map((w) => [w.botName, w])
-  );
+  const pnlMap = new Map(pnlByBot.map((b) => [b.botName, b]));
+  const winRateMap = new Map(winRateByBot.map((w) => [w.botName, w]));
 
   return (
     <div className="space-y-6">
@@ -33,8 +32,9 @@ export default async function PerformancePage() {
           ボット別サマリー
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {pnlByBot.map((bot) => {
-            const wr = winRateMap.get(bot.botName);
+          {BOT_NAMES.map((name) => {
+            const bot = pnlMap.get(name) ?? { botName: name, totalPnl: 0, tradeCount: 0, avgPnl: 0 };
+            const wr = winRateMap.get(name);
             return (
               <div
                 key={bot.botName}
